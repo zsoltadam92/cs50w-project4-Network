@@ -5,7 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 
-from .models import User
+from .models import User,Post
+
 
 class NewPostForm(forms.Form):
     newPost = forms.CharField(
@@ -15,9 +16,24 @@ class NewPostForm(forms.Form):
 
 
 def index(request):
+    posts = Post.objects.all().order_by("-created_at")
+
+    create_post(request)
+
     return render(request, "network/index.html", {
-        "newPostForm": NewPostForm()
+        "newPostForm": NewPostForm(),
+        "posts": posts
     })
+
+def create_post(request):
+    if request.method == "POST":
+        form = NewPostForm(request.POST)
+        if form.is_valid():
+            post = Post(
+                user=request.user, 
+                content=form.cleaned_data["newPost"])
+            post.save()
+
 
 
 def login_view(request):
