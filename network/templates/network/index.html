@@ -2,20 +2,28 @@
 
 {% block body %}
     {%if user.is_authenticated%}
-        <form action="{% url 'index' %}" method="post" class="mt-3">
-            {% csrf_token %}
-            {{newPostForm}}
-            <button class="btn btn-primary" type="submit">Send Post</button>
-        </form>
+    <form action="{% url 'index' %}" method="post" class="mt-3">
+        {% csrf_token %}
+        {{newPostForm}}
+        <button class="btn btn-primary" type="submit">Send Post</button>
+    </form>
+    
     {% endif%}
-
     {% for post in posts %}
-        <div>
-            <h4>{{post.user.username}}</h4>
-            <p>{{ post.content }}</p>
-            <p>Posted on: {{ post.created_at }}</p>
-            <button class="like-button" data-post="{{ post.id }}">Like</button>
-            <p>Likes: {{ post.like_count }}</p>
+    <div>
+        <h4>{{post.user.username}}</h4>
+        <p>{{ post.content }}</p>
+        <p>Posted on: {{ post.created_at }}</p>
+        {%if user.is_authenticated%}
+            <button id="like-button-{{post.id}}" class="like-button" data-post="{{ post.id }}" type="submit">
+                {% if post.is_liked %}
+                    Unlike
+                {% else %}
+                    Like
+                {% endif %}
+            </button>
+        {% endif%}
+        <p id="like-count-{{post.id}}">Likes: {{ post.like_count }}</p>
         </div>
     {% endfor %}
 {% endblock %}

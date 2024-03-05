@@ -1,12 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 
-from .models import User,Post
-
+from .models import User,Post, Like
 
 class NewPostForm(forms.Form):
     newPost = forms.CharField(
@@ -16,9 +16,14 @@ class NewPostForm(forms.Form):
 
 
 def index(request):
+    create_post(request)
+
     posts = Post.objects.all().order_by("-created_at")
 
-    create_post(request)
+    for post in posts:
+        post.is_liked = False
+        if request.user.is_authenticated:
+            post.is_liked = post.is_liked_by_user(request.user)
 
     return render(request, "network/index.html", {
         "newPostForm": NewPostForm(),
@@ -33,6 +38,25 @@ def create_post(request):
                 user=request.user, 
                 content=form.cleaned_data["newPost"])
             post.save()
+            # Redirect to the index page to update the list of entries
+            return HttpResponseRedirect(reverse('index'))
+
+def like_post(request, post_id):
+    if request.method == 'POST':
+        post = Post.objects.get(id=post_id)
+        try:
+            # Try to fetch the existing 'Like' object.
+            like = Like.objects.get(user=request.user, post=post)
+            # Since the object exists, we assume the user wants to unlike the post.
+            like.delete()
+            is_liked = False
+        except ObjectDoesNotExist:
+            # If the 'Like' object doesn't exist, create a new one indicating a like action.
+            Like.objects.create(user=request.user, post=post)
+            is_liked = True
+        
+        # After handling the like/unlike logic, return the current like count and status.
+        return JsonResponse({'like_count': post.like_count, 'liked': is_liked})
 
 
 
