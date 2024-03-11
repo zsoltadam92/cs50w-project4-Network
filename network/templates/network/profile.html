@@ -1,0 +1,38 @@
+{% extends 'network/layout.html' %}
+{% load static %}
+        
+
+{% block body %}
+<div class="container">
+    <div class="profile-header">
+        <h2>{{ user_profile.username }}'s Profile</h2>
+        <p><strong>Followers:</strong> <span id="followers-count">{{ followers_count }}</span></p>
+        <p><strong>Following:</strong> {{ following_count }}</p>
+        {% if user.is_authenticated %}
+            {% if user != user_profile %}
+                <button id="follow-toggle-button" data-username="{{ user_profile.username }}" class="btn btn-primary">
+                    {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                </button>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="posts-list">
+        <h3>Posts</h3>
+        {% for post in posts %}
+            <div class="post">
+                <p>{{ post.content }}</p>
+                <p><small>Posted on: {{ post.created_at }}</small></p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if user != user_profile %}
+
+{% block script %}
+<script src="{% static 'network/follow.js' %}" type="module"></script>
+{% endblock %}
+{% endif %}
+
+{% endblock %}

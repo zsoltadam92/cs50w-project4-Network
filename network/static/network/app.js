@@ -1,3 +1,5 @@
+import getCookie from "./util.js";
+
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.like-button').forEach(button => {
     button.addEventListener('click', function() {
@@ -14,31 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(result => {
-            if (result.liked) {
-                document.querySelector(`#like-button-${postId}`).innerHTML = "Unlike"
-            } else {
-                document.querySelector(`#like-button-${postId}`).innerHTML = "Like"
-                
-            }
+            document.querySelector(`#like-button-${postId}`).innerHTML = result.liked ? "Unlike" : "Like"
+            
             // Update the like count on the page
-
             document.querySelector(`#like-count-${postId}`).innerHTML = `Likes: ${result.like_count}`;
         });
     });
   });
 });
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-          }
-      }
-  }
-  return cookieValue;
-}

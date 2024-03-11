@@ -5,8 +5,10 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
+from django.contrib.auth.decorators import login_required
 
-from .models import User,Post, Like
+
+from .models import User,Post, Like, Follow
 
 class NewPostForm(forms.Form):
     newPost = forms.CharField(
@@ -58,7 +60,50 @@ def like_post(request, post_id):
         # After handling the like/unlike logic, return the current like count and status.
         return JsonResponse({'like_count': post.like_count, 'liked': is_liked})
 
+def profile(request, username):
+    user = User.objects.get(username=username)
+    posts = Post.objects.filter(user=user).order_by('-created_at')
 
+    # Check if current user is following the profile
+    is_following = False
+    if request.user.is_authenticated and Follow.objects.filter(follower=request.user, followed=user).exists():
+        is_following = True
+
+    # Count the number of followers and following
+    followers_count = Follow.objects.filter(followed=user).count()
+    following_count = Follow.objects.filter(follower=user).count()
+
+    return render(request, 'network/profile.html', {
+        'user_profile': user,
+        'posts': posts,
+        'is_following': is_following,
+        'followers_count': followers_count,
+        'following_count': following_count
+    })
+
+@login_required
+def toggle_follow(request, username):
+    if request.method == 'POST':
+        follower = request.user
+        followed = User.objects.get(username=username)
+
+        if follower == followed:
+            return JsonResponse({"error": "You cannot follow yourself."}, status=400)
+
+        try:
+            # Try to find an existing follow relationship
+            follow_relation = Follow.objects.get(follower=follower, followed=followed)
+            # If found, delete it, meaning the user wants to unfollow
+            follow_relation.delete()
+            action = "unfollowed"
+        except Follow.DoesNotExist:
+            # If not found, create a new follow relationship, meaning the user wants to follow
+            Follow.objects.create(follower=follower, followed=followed)
+            action = "followed"
+
+        return JsonResponse({"status": "success", "action": action, "followers_count": Follow.objects.filter(followed=followed).count()})
+
+    return JsonResponse({"error": "POST request required."}, status=400)
 
 def login_view(request):
     if request.method == "POST":

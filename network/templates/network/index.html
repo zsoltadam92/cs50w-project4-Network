@@ -11,7 +11,8 @@
     {% endif%}
     {% for post in posts %}
     <div>
-        <h4>{{post.user.username}}</h4>
+        
+        <h4><a class="nav-link" href="{% url 'profile' username=post.user.username %}"><strong>{{ post.user.username }}</strong></a></h4>
         <p>{{ post.content }}</p>
         <p>Posted on: {{ post.created_at }}</p>
         {%if user.is_authenticated%}
