@@ -105,6 +105,25 @@ def toggle_follow(request, username):
 
     return JsonResponse({"error": "POST request required."}, status=400)
 
+@login_required
+def following(request):
+    # Get the list of users the current user is following
+    user_following = request.user.following.all().values_list('followed_id', flat=True)
+    
+    # Filter posts to only those made by followed users
+    posts = Post.objects.filter(user_id__in=user_following).order_by('-created_at')
+
+    for post in posts:
+        post.is_liked = False
+        if request.user.is_authenticated:
+            post.is_liked = post.is_liked_by_user(request.user)
+
+    
+    return render(request, "network/following.html", {
+        "posts": posts
+    })
+
+
 def login_view(request):
     if request.method == "POST":
 

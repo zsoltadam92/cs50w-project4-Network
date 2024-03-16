@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/like/${postId}`, {
             method: 'POST',
             body: JSON.stringify({
-                like: true
+                'postId': postId
             }),
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'), // Ensure you have a function to get CSRF token or adjust accordingly

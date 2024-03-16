@@ -1,0 +1,17 @@
+{% for post in posts %}
+<div>
+    <h4><a class="nav-link" href="{% url 'profile' username=post.user.username %}"><strong>{{ post.user.username }}</strong></a></h4>
+    <p>{{ post.content }}</p>
+    <p>Posted on: {{ post.created_at }}</p>
+    {%if user.is_authenticated%}
+        <button id="like-button-{{post.id}}" class="like-button" data-post="{{ post.id }}" type="submit">
+            {% if post.is_liked %}
+                Unlike
+            {% else %}
+                Like
+            {% endif %}
+        </button>
+    {% endif%}
+    <p id="like-count-{{post.id}}">Likes: {{ post.like_count }}</p>
+</div>
+{% endfor %}
