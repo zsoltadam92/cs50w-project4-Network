@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
 from .models import User,Post, Like, Follow
@@ -16,6 +17,8 @@ class NewPostForm(forms.Form):
         widget=forms.Textarea(attrs={'placeholder': 'Say something', 'class': 'form-control form-group col-6'})
     )
 
+class EditPostForm(forms.Form):
+    editPost = forms.CharField(label="", widget=forms.Textarea(attrs={'cols': 100, 'rows': 15, 'class': 'form-control col-lg-8 mb-2'}))
 
 def index(request):
     create_post(request)
@@ -43,6 +46,20 @@ def create_post(request):
             # Redirect to the index page to update the list of entries
             return HttpResponseRedirect(reverse('index'))
 
+def edit_post(request,post_id):
+    post = Post.objects.get(id=post_id, user=request.user)
+    if request.method == "POST":
+        form = EditPostForm(request.POST)
+        if form.is_valid():
+            # Update the post's content instead of creating a new post
+            post.content = form.cleaned_data["editPost"]
+            post.created_at = timezone.now()
+            post.save()
+            formatted_date = post.created_at.strftime("%b %d, %Y, %I:%M %p")
+            return JsonResponse({"message": "Post updated successfully.", "content": post.content, 'like_count': post.like_count, 'created_at': formatted_date})
+        else:
+            return JsonResponse({"error": "The form is not valid."}, status=400)
+        
 def like_post(request, post_id):
     if request.method == 'POST':
         post = Post.objects.get(id=post_id)
