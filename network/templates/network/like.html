@@ -1,30 +1,35 @@
 {% if not posts %}
-  <p class="ml-5">No posts yet.</p>
+  <div class="text-center mt-5">
+    <p class="lead">No posts yet.</p>
+  </div>
 {% else %}
-
-    {% for post in posts %}
-    <div>
-        <h4><a class="nav-link" href="{% url 'profile' username=post.user.username %}"><strong>{{ post.user.username }}</strong></a></h4>
-        <div id="post-{{ post.id }}">
-            <p class="post-content">{{ post.content }}</p>
-            <p>Posted on: {{ post.created_at }}</p>
-            {%if user.is_authenticated%}
-                <button id="like-button-{{post.id}}" class="like-button" data-post="{{ post.id }}" type="submit">
-                    {% if post.is_liked %}
-                        Unlike
-                    {% else %}
-                        Like
-                    {% endif %}
-                </button>
-            {% endif%}
-            <p id="like-count-{{post.id}}">Likes: {{ post.like_count }}</p>
-
-            {% if user.is_authenticated and user == post.user %}
-            <button class="edit-button" data-post-id="{{ post.id }}">Edit</button>
-            {% endif %}
+    <div class="container mt-3">
+        {% for post in posts %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><a  href="{% url 'profile' username=post.user.username %}">{{ post.user.username }}</a></h5>
+                <div id="post-{{ post.id }}">
+                    <p class="card-text post-content">{{ post.content }}</p>
+                    <p class="card-text"><small class="text-muted">Posted on: {{ post.created_at }}</small></p>
+                    <div>
+                        {% if user.is_authenticated and user == post.user %}
+                            <button class="edit-button btn btn-secondary mb-2" data-post_id="{{ post.id }}">Edit</button>
+                        {% endif %}
+                        <button href="#" id="like-button-{{post.id}}" class="btn btn-primary mb-2 like-button" data-post="{{ post.id }}" type="submit">
+                            {% if post.is_liked %}
+                                Unlike
+                            {% else %}
+                                Like
+                            {% endif %}
+                        </button>
+                    </div>
+                    <span id="like-count-{{post.id}}">Likes: {{ post.like_count }}</span>
+                </div>
+            </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+
 
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center mt-4">

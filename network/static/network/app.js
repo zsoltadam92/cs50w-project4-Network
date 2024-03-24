@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function() {
-            const postId = this.dataset.post-id;
+            const postId = this.dataset.post_id;
             handleEditButton(postId)
         });
     });
@@ -33,12 +33,13 @@ function savePost(postId) {
         if(data.message) {
             let postDiv = document.getElementById('post-' + postId);
             // Assume `data.like_count` is the updated like count sent back from the server
-            const editButton =  `<button class="edit-button btn btn-info" data-post-id="${postId}">Edit</button>`
-            const likeButton = `<button id="like-button-${postId}" class="like-button btn btn-primary" data-post="${postId}" type="button">${data.is_liked ? "Unlike" : "Like"}</button>`;
+            const created_at = `<p class="card-text"><small class="text-muted">Posted on: ${ data.created_at }</small></p>`
+            const editButton = `<button class="edit-button btn btn-secondary mb-2" data-post_id="${postId}">Edit</button>`
+            const likeButton = `<button id="like-button-${postId}" class="like-button btn btn-primary mb-2" data-post="${postId}" type="button">${data.is_liked ? "Unlike" : "Like"}</button>`;
             const likeCount = `<p id="like-count-${postId}">Likes: ${ data.like_count }</p>`;
 
-            postDiv.innerHTML = `<p class="post-content">${editedContent}</p>
-                                <p>Posted on: ${ data.created_at }</p>
+            postDiv.innerHTML = `<p class="card-text post-content">${editedContent}</p>
+                                ${created_at}
                                 ${editButton}
                                 ${likeButton}
                                 ${likeCount}`;
@@ -58,7 +59,7 @@ function savePost(postId) {
 function attachEventListenersToButtons() {
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function() {
-            const postId = this.dataset.post-id;
+            const postId = this.dataset.post_id;
             handleEditButton(postId)
         });
     });
@@ -95,16 +96,16 @@ function handleLikeButton(postId) {
 
 function handleEditButton(postId) {
     let postDiv = document.getElementById('post-' + postId);
-        let content = postDiv.querySelector('.post-content').innerText;
+    let content = postDiv.querySelector('.post-content').innerText;
 
-            // Setup the editable textarea and Save button
-        const textarea = `<textarea id="edit-content-${postId}" class="form-control">${content}</textarea>`;
-        const saveButton = `<button class="save-edit btn btn-success" data-post-id="${postId}">Save</button>`;
-        
-        postDiv.innerHTML = textarea + saveButton;
+        // Setup the editable textarea and Save button
+    const textarea = `<textarea id="edit-content-${postId}" class="form-control mb-2">${content}</textarea>`;
+    const saveButton = `<button class="save-edit btn btn-success" data-post-id="${postId}">Save</button>`;
+    
+    postDiv.innerHTML = textarea + saveButton;
 
-        // Add click listener for the newly added Save button
-        document.querySelector(`.save-edit[data-post-id="${postId}"]`).addEventListener('click', function() {
-            savePost(postId);
-        });
+    // Add click listener for the newly added Save button
+    document.querySelector(`.save-edit[data-post-id="${postId}"]`).addEventListener('click', function() {
+        savePost(postId);
+    });
 }

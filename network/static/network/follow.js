@@ -1,23 +1,31 @@
 import getCookie from "./util.js";
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('#follow-toggle-button').addEventListener("click",  () => {
-        const username = document.querySelector('#follow-toggle-button').dataset.username;
-        fetch(`/toggle_follow/${username}`, {
-            method: 'POST',
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"), // CSRF token as before
-            },
-        })
-        .then(response => response.json())
-        .then(result => {
-            // Update the button and followers count based on the result
-            if (result.status === "success") {
-                document.querySelector('#follow-toggle-button').innerHTML = result.action === "followed" ? "Unfollow" : "Follow";
-                document.querySelector('#followers-count').innerHTML = `${result.followers_count}`;
-            }
+    const followToggleButton = document.querySelector('#follow-toggle-button');
+    if (followToggleButton) {
+        followToggleButton.addEventListener("click", () => {
+            console.log(123);
+            const username = followToggleButton.dataset.username;
+            fetch(`/toggle_follow/${username}`, {
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === "success") {
+                    followToggleButton.innerHTML = result.action === "followed" ? `<i class="bi bi-person-dash-fill"></i> Unfollow` : `<i class="bi bi-person-plus-fill"></i> Follow`;
+                    document.querySelector('#followers-count').innerHTML = `${result.followers_count}`;
+
+                    // Törölj minden stílus osztályt, majd add hozzá a megfelelőt
+                    followToggleButton.classList.remove("btn-success", "btn-danger");
+                    followToggleButton.classList.add(result.action === "followed" ? "btn-danger" : "btn-success");
+                }
+            });
         });
-    });
+    }
 });
+
 
 
