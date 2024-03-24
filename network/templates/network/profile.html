@@ -19,12 +19,7 @@
 
     <div class="posts-list">
         <h3>Posts</h3>
-        {% for post in posts %}
-            <div class="post">
-                <p>{{ post.content }}</p>
-                <p><small>Posted on: {{ post.created_at }}</small></p>
-            </div>
-        {% endfor %}
+        {% include "network/like.html"  with posts=posts %}
     </div>
 </div>
 

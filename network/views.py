@@ -7,7 +7,7 @@ from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
+from .utils import paginate_posts
 
 from .models import User,Post, Like, Follow
 
@@ -24,15 +24,17 @@ def index(request):
     create_post(request)
 
     posts = Post.objects.all().order_by("-created_at")
+    paginated_posts = paginate_posts(request, posts, per_page=10)
 
-    for post in posts:
+
+    for post in paginated_posts:
         post.is_liked = False
         if request.user.is_authenticated:
             post.is_liked = post.is_liked_by_user(request.user)
 
     return render(request, "network/index.html", {
         "newPostForm": NewPostForm(),
-        "posts": posts
+        "posts": paginated_posts
     })
 
 def create_post(request):
@@ -48,6 +50,7 @@ def create_post(request):
 
 def edit_post(request,post_id):
     post = Post.objects.get(id=post_id, user=request.user)
+
     if request.method == "POST":
         form = EditPostForm(request.POST)
         if form.is_valid():
@@ -56,7 +59,7 @@ def edit_post(request,post_id):
             post.created_at = timezone.now()
             post.save()
             formatted_date = post.created_at.strftime("%b %d, %Y, %I:%M %p")
-            return JsonResponse({"message": "Post updated successfully.", "content": post.content, 'like_count': post.like_count, 'created_at': formatted_date})
+            return JsonResponse({"message": "Post updated successfully.", "content": post.content, 'like_count': post.like_count, 'created_at': formatted_date, 'is_liked': post.is_liked_by_user(request.user)})
         else:
             return JsonResponse({"error": "The form is not valid."}, status=400)
         
@@ -80,6 +83,12 @@ def like_post(request, post_id):
 def profile(request, username):
     user = User.objects.get(username=username)
     posts = Post.objects.filter(user=user).order_by('-created_at')
+    paginated_posts = paginate_posts(request, posts, per_page=10)
+
+    for post in paginated_posts:
+        post.is_liked = False
+        if request.user.is_authenticated:
+            post.is_liked = post.is_liked_by_user(request.user)
 
     # Check if current user is following the profile
     is_following = False
@@ -92,7 +101,7 @@ def profile(request, username):
 
     return render(request, 'network/profile.html', {
         'user_profile': user,
-        'posts': posts,
+        'posts': paginated_posts,
         'is_following': is_following,
         'followers_count': followers_count,
         'following_count': following_count
@@ -129,15 +138,17 @@ def following(request):
     
     # Filter posts to only those made by followed users
     posts = Post.objects.filter(user_id__in=user_following).order_by('-created_at')
+    paginated_posts = paginate_posts(request, posts, per_page=10)
 
-    for post in posts:
+
+    for post in paginated_posts:
         post.is_liked = False
         if request.user.is_authenticated:
             post.is_liked = post.is_liked_by_user(request.user)
 
     
     return render(request, "network/following.html", {
-        "posts": posts
+        "posts": paginated_posts
     })
 
 

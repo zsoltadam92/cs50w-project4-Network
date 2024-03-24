@@ -4,45 +4,16 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.like-button').forEach(button => {
     button.addEventListener('click', function() {
         const postId = this.dataset.post;
-        fetch(`/like/${postId}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                'postId': postId
-            }),
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'), // Ensure you have a function to get CSRF token or adjust accordingly
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(result => {
-            document.querySelector(`#like-button-${postId}`).innerHTML = result.liked ? "Unlike" : "Like"
-            
-            // Update the like count on the page
-            document.querySelector(`#like-count-${postId}`).innerHTML = `Likes: ${result.like_count}`;
-        });
+        handleLikeButton(postId)
     });
   });
 });
 
-
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function() {
-            let postId = this.getAttribute('data-post-id');
-            let postDiv = document.getElementById('post-' + postId);
-            let content = postDiv.querySelector('.post-content').innerText;
-
-             // Setup the editable textarea and Save button
-            const textarea = `<textarea id="edit-content-${postId}" class="form-control">${content}</textarea>`;
-            const saveButton = `<button class="save-edit btn btn-success" data-post-id="${postId}">Save</button>`;
-            
-            postDiv.innerHTML = textarea + saveButton;
-
-            // Add click listener for the newly added Save button
-            document.querySelector(`.save-edit[data-post-id="${postId}"]`).addEventListener('click', function() {
-                savePost(postId);
-            });
+            const postId = this.dataset.post-id;
+            handleEditButton(postId)
         });
     });
 });
@@ -63,7 +34,7 @@ function savePost(postId) {
             let postDiv = document.getElementById('post-' + postId);
             // Assume `data.like_count` is the updated like count sent back from the server
             const editButton =  `<button class="edit-button btn btn-info" data-post-id="${postId}">Edit</button>`
-            const likeButton = `<button id="like-button-${postId}" class="like-button btn btn-primary" data-post="${postId}" type="button">Like</button>`;
+            const likeButton = `<button id="like-button-${postId}" class="like-button btn btn-primary" data-post="${postId}" type="button">${data.is_liked ? "Unlike" : "Like"}</button>`;
             const likeCount = `<p id="like-count-${postId}">Likes: ${ data.like_count }</p>`;
 
             postDiv.innerHTML = `<p class="post-content">${editedContent}</p>
@@ -87,49 +58,53 @@ function savePost(postId) {
 function attachEventListenersToButtons() {
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function() {
-            let postId = this.getAttribute('data-post-id');
-            let postDiv = document.getElementById('post-' + postId);
-            let content = postDiv.querySelector('.post-content').innerText;
-
-             // Setup the editable textarea and Save button
-            const textarea = `<textarea id="edit-content-${postId}" class="form-control">${content}</textarea>`;
-            const saveButton = `<button class="save-edit btn btn-success" data-post-id="${postId}">Save</button>`;
-            
-            postDiv.innerHTML = textarea + saveButton;
-
-            // Add click listener for the newly added Save button
-            document.querySelector(`.save-edit[data-post-id="${postId}"]`).addEventListener('click', function() {
-                savePost(postId);
-            });
+            const postId = this.dataset.post-id;
+            handleEditButton(postId)
         });
     });
 
     document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', function() {
-            const postId = this.getAttribute('data-post');
-            // Your like button functionality here
-            fetch(`/like/${postId}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    'postId': postId
-                }),
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'), // Ensure you have a function to get CSRF token or adjust accordingly
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                document.querySelector(`#like-button-${postId}`).innerHTML = result.liked ? "Unlike" : "Like"
-                
-                // Update the like count on the page
-                document.querySelector(`#like-count-${postId}`).innerHTML = `Likes: ${result.like_count}`;
-            });
+            const postId = this.dataset.post;
+            handleLikeButton(postId)
         });
     });
 }
 
-// // Call this function both on DOMContentLoaded and after updating the DOM
-// document.addEventListener('DOMContentLoaded', function() {
-//     attachEventListenersToButtons();
-// });
+
+function handleLikeButton(postId) {
+    fetch(`/like/${postId}`, {
+        method: 'POST',
+        body: JSON.stringify({
+            'postId': postId
+        }),
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'), // Ensure you have a function to get CSRF token or adjust accordingly
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        document.querySelector(`#like-button-${postId}`).innerHTML = result.liked ? "Unlike" : "Like"
+        
+        // Update the like count on the page
+        document.querySelector(`#like-count-${postId}`).innerHTML = `Likes: ${result.like_count}`;
+    });
+}
+
+
+function handleEditButton(postId) {
+    let postDiv = document.getElementById('post-' + postId);
+        let content = postDiv.querySelector('.post-content').innerText;
+
+            // Setup the editable textarea and Save button
+        const textarea = `<textarea id="edit-content-${postId}" class="form-control">${content}</textarea>`;
+        const saveButton = `<button class="save-edit btn btn-success" data-post-id="${postId}">Save</button>`;
+        
+        postDiv.innerHTML = textarea + saveButton;
+
+        // Add click listener for the newly added Save button
+        document.querySelector(`.save-edit[data-post-id="${postId}"]`).addEventListener('click', function() {
+            savePost(postId);
+        });
+}
