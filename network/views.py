@@ -14,7 +14,7 @@ from .models import User,Post, Like, Follow
 class NewPostForm(forms.Form):
     newPost = forms.CharField(
         label="",
-        widget=forms.Textarea(attrs={'placeholder': 'Say something', 'class': 'form-control form-group col-6'})
+        widget=forms.Textarea(attrs={'rows': 6,'placeholder': 'Say something', 'class': 'form-control form-group col-12'})
     )
 
 class EditPostForm(forms.Form):
@@ -95,7 +95,8 @@ def profile(request, username):
     if request.user.is_authenticated and Follow.objects.filter(follower=request.user, followed=user).exists():
         is_following = True
 
-    # Count the number of followers and following
+    # Count the number of posts followers and following
+    posts_count = Post.objects.filter(user=user).count()
     followers_count = Follow.objects.filter(followed=user).count()
     following_count = Follow.objects.filter(follower=user).count()
 
@@ -103,6 +104,7 @@ def profile(request, username):
         'user_profile': user,
         'posts': paginated_posts,
         'is_following': is_following,
+        'posts_count': posts_count,
         'followers_count': followers_count,
         'following_count': following_count
     })

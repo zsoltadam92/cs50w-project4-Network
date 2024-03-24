@@ -3,34 +3,37 @@
         
 
 {% block body %}
-<div class="container mt-3">
-    <div class="container mt-3 profile-header">
-        <div class="card border-primary mb-3">
-            <div class="card-header bg-transparent border-primary">
-                <h2 class="card-title">{{ user_profile.username }}'s Profile</h2>
-            </div>
-            <div class="card-body text-primary">
-                <h5 class="card-title">
+<div class=" mt-3">
+    <div class="mt-3 profile-header">
+        <div class=" mb-3">
+            <div class="container col-md-6 d-flex justify-content-around align-items-center">
+                <div>
+                    <h2 class="card-title">{{ user_profile.username }}'s Profile</h2>
+                    {% if user.is_authenticated %}
+                        {% if user != user_profile %}
+                            <button id="follow-toggle-button" data-username="{{ user_profile.username }}" class="btn {% if is_following %}btn-danger{% else %}btn-success{% endif %}">
+                                <i class="bi {% if is_following %}bi-person-dash-fill{% else %}bi-person-plus-fill{% endif %}"></i> 
+                                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <h5 class="card-title text-info">
+                    <span id="posts-count">{{ posts_count }} posts</span>
+                </h5>
+                <h5 class="card-title text-info">
                     <i class="bi bi-person-badge-fill"></i> Followers: <span id="followers-count">{{ followers_count }}</span>
                 </h5>
-                <h5 class="card-title">
+                <h5 class="card-title text-info">
                     <i class="bi bi-people-fill"></i> Following: {{ following_count }}
                 </h5>
-                {% if user.is_authenticated %}
-                    {% if user != user_profile %}
-                        <button id="follow-toggle-button" data-username="{{ user_profile.username }}" class="btn {% if is_following %}btn-danger{% else %}btn-success{% endif %}">
-                            <i class="bi {% if is_following %}bi-person-dash-fill{% else %}bi-person-plus-fill{% endif %}"></i> 
-                            {% if is_following %}Unfollow{% else %}Follow{% endif %}
-                        </button>
-                    {% endif %}
-                {% endif %}
             </div>
         </div>
     </div>
     
 
     <div class="posts-list">
-        <h3 class="container mt-3">Posts</h3>
+        <h2 class="container col-md-6 mt-3">Posts</h2>
         {% include "network/like.html"  with posts=posts %}
     </div>
     

@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     followToggleButton.innerHTML = result.action === "followed" ? `<i class="bi bi-person-dash-fill"></i> Unfollow` : `<i class="bi bi-person-plus-fill"></i> Follow`;
                     document.querySelector('#followers-count').innerHTML = `${result.followers_count}`;
 
-                    // Törölj minden stílus osztályt, majd add hozzá a megfelelőt
                     followToggleButton.classList.remove("btn-success", "btn-danger");
                     followToggleButton.classList.add(result.action === "followed" ? "btn-danger" : "btn-success");
                 }

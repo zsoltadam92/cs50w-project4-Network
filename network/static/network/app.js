@@ -36,7 +36,7 @@ function savePost(postId) {
             const created_at = `<p class="card-text"><small class="text-muted">Posted on: ${ data.created_at }</small></p>`
             const editButton = `<button class="edit-button btn btn-secondary mb-2" data-post_id="${postId}">Edit</button>`
             const likeButton = `<button id="like-button-${postId}" class="like-button btn btn-primary mb-2" data-post="${postId}" type="button">${data.is_liked ? "Unlike" : "Like"}</button>`;
-            const likeCount = `<p id="like-count-${postId}">Likes: ${ data.like_count }</p>`;
+            const likeCount = `<p id="like-count-${postId}"><i class="bi bi-hand-thumbs-up-fill"></i> ${ data.like_count }</p>`;
 
             postDiv.innerHTML = `<p class="card-text post-content">${editedContent}</p>
                                 ${created_at}
@@ -89,7 +89,7 @@ function handleLikeButton(postId) {
         document.querySelector(`#like-button-${postId}`).innerHTML = result.liked ? "Unlike" : "Like"
         
         // Update the like count on the page
-        document.querySelector(`#like-count-${postId}`).innerHTML = `Likes: ${result.like_count}`;
+        document.querySelector(`#like-count-${postId}`).innerHTML = `<i class="bi bi-hand-thumbs-up-fill"></i> ${result.like_count}`;
     });
 }
 
@@ -99,7 +99,7 @@ function handleEditButton(postId) {
     let content = postDiv.querySelector('.post-content').innerText;
 
         // Setup the editable textarea and Save button
-    const textarea = `<textarea id="edit-content-${postId}" class="form-control mb-2">${content}</textarea>`;
+    const textarea = `<textarea autofocus id="edit-content-${postId}" class="form-control mb-2">${content}</textarea>`;
     const saveButton = `<button class="save-edit btn btn-success" data-post-id="${postId}">Save</button>`;
     
     postDiv.innerHTML = textarea + saveButton;

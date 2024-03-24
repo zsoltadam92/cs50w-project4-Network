@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: url('./cs50-computer-science.jpg') 50%  ;
+  height: 100vh;
+}
+
+h2 {
+  color: #fff;
+
+}
+
+
+.card , textarea {
+  opacity: 0.9;
+}
