@@ -37,6 +37,7 @@ def index(request):
         "posts": paginated_posts
     })
 
+@login_required
 def create_post(request):
     if request.method == "POST":
         form = NewPostForm(request.POST)
@@ -48,6 +49,7 @@ def create_post(request):
             # Redirect to the index page to update the list of entries
             return HttpResponseRedirect(reverse('index'))
 
+@login_required
 def edit_post(request,post_id):
     post = Post.objects.get(id=post_id, user=request.user)
 
@@ -63,6 +65,7 @@ def edit_post(request,post_id):
         else:
             return JsonResponse({"error": "The form is not valid."}, status=400)
         
+@login_required
 def like_post(request, post_id):
     if request.method == 'POST':
         post = Post.objects.get(id=post_id)
